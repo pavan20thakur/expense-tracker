@@ -6,7 +6,9 @@ import { Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 import { format } from "date-fns";
+import { formatCurrency, CurrencyCode } from "@/lib/currency";
 
 interface Expense {
   id: string;
@@ -27,6 +29,9 @@ const ExpenseList = ({ refreshTrigger }: ExpenseListProps) => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { profile } = useProfile();
+
+  const currency = (profile?.currency as CurrencyCode) || 'INR';
 
   const fetchExpenses = async () => {
     if (!user) return;
@@ -131,7 +136,7 @@ const ExpenseList = ({ refreshTrigger }: ExpenseListProps) => {
         <CardContent>
           <div className="text-center">
             <div className="text-3xl font-bold text-primary">
-              ${currentMonthTotal.toFixed(2)}
+              {formatCurrency(currentMonthTotal, currency)}
             </div>
             <p className="text-muted-foreground mt-2">
               {format(new Date(), 'MMMM yyyy')}
@@ -169,7 +174,7 @@ const ExpenseList = ({ refreshTrigger }: ExpenseListProps) => {
                   <div className="flex items-center gap-3">
                     <div className="text-right">
                       <div className="font-bold text-lg">
-                        ${expense.amount.toFixed(2)}
+                        {formatCurrency(expense.amount, currency)}
                       </div>
                     </div>
                     <Button

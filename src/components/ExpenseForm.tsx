@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
+import { formatCurrency, CurrencyCode } from "@/lib/currency";
 
 interface ExpenseFormProps {
   onExpenseAdded: () => void;
@@ -32,6 +34,9 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { profile } = useProfile();
+
+  const currency = (profile?.currency as CurrencyCode) || 'INR';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,17 +129,22 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="amount">Amount</Label>
+              <Label htmlFor="amount">Amount ({currency})</Label>
               <Input
                 id="amount"
                 type="number"
                 step="0.01"
                 min="0"
-                placeholder="0.00"
+                placeholder={`0.00 ${currency}`}
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 required
               />
+              {amount && (
+                <p className="text-xs text-muted-foreground">
+                  {formatCurrency(parseFloat(amount) || 0, currency)}
+                </p>
+              )}
             </div>
           </div>
           
